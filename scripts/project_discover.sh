@@ -30,9 +30,9 @@ else
     RED='' GREEN='' YELLOW='' BLUE='' NC=''
 fi
 
-log_info()  { echo -e "${BLUE}[INFO]${NC} $*"; }
-log_ok()    { echo -e "${GREEN}[OK]${NC} $*"; }
-log_warn()  { echo -e "${YELLOW}[WARN]${NC} $*"; }
+log_info()  { echo -e "${BLUE}[INFO]${NC} $*" >&2; }
+log_ok()    { echo -e "${GREEN}[OK]${NC} $*" >&2; }
+log_warn()  { echo -e "${YELLOW}[WARN]${NC} $*" >&2; }
 log_error() { echo -e "${RED}[ERROR]${NC} $*" >&2; }
 
 # Check prerequisites
