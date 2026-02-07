@@ -1,0 +1,33 @@
+# Core data manipulation
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+matplotlib>=3.7.0
+plotly>=5.15.0
+seaborn>=0.12.0
+
+# Machine learning
+scikit-learn>=1.3.0
+
+# Time-series forecasting
+prophet>=1.1.4
+
+# Deep learning (for transformer/LSTM models)
+torch>=2.0.0
+
+# Jupyter notebooks
+jupyter>=1.0.0
+ipykernel>=6.0.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3
+tqdm>=4.65.0
+
+# Data validation (optional)
+# pandera>=0.16.0
+
+# Dashboard (optional, for future use)
+# streamlit>=1.25.0
+# dash>=2.11.0
