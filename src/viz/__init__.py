@@ -2,6 +2,7 @@
 
 from .dashboards import (
     plot_daily_opportunity_for_savings,
+    plot_occupancy_over_time,
     plot_example_day_timeline,
     plot_occupancy_heatmap,
     plot_savings_summary,
@@ -9,6 +10,7 @@ from .dashboards import (
 
 __all__ = [
     "plot_daily_opportunity_for_savings",
+    "plot_occupancy_over_time",
     "plot_example_day_timeline",
     "plot_occupancy_heatmap",
     "plot_savings_summary",
