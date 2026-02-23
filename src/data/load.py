@@ -61,25 +61,76 @@ def _natural_week_sort_key(path: Path):
 
 def load_occupancy(path: str, parse_dates: bool = True) -> pd.DataFrame:
     """
-    Load raw occupancy data from CSV.
+    Load occupancy data from a CSV file OR a directory of CSV files.
 
-    Occupancy data is typically derived from Wi-Fi or locator systems and contains
-    timestamps with occupancy counts per zone/room.
+    Supported input schemas are normalized to common columns:
+      - access_point
+      - interval_begin
+      - count
+      - source_file
+
+    Known source variants:
+      1) ap, interval_begin_time, count
+      2) access_point, interval_begin, count
 
     Args:
-        path: Path to the occupancy CSV file.
-        parse_dates: Whether to parse timestamp columns as datetime.
+        path: Path to one CSV file or a folder of CSV files.
+        parse_dates: Whether to parse interval_begin as datetime.
 
     Returns:
-        DataFrame with columns like: timestamp, zone_id, occupancy_count.
-
-    TODO:
-        - Determine actual column names from raw data files
-        - Handle multiple file formats if needed (CSV, parquet, etc.)
-        - Add validation for expected columns
+        Normalized occupancy dataframe.
     """
-    # TODO: Implement actual loading logic once data format is known
-    raise NotImplementedError("Implement once raw data format is confirmed")
+    input_path = Path(path)
+
+    if input_path.is_file():
+        files = [input_path]
+    elif input_path.is_dir():
+        files = sorted(input_path.glob("*.csv"))
+    else:
+        raise FileNotFoundError(f"Occupancy path does not exist: {path}")
+
+    if not files:
+        raise FileNotFoundError(f"No CSV files found at: {path}")
+
+    frames = []
+    for f in files:
+        df = pd.read_csv(f, low_memory=False)
+        df.columns = _dedupe_columns(df.columns.tolist())
+
+        rename_map = {}
+        if "ap" in df.columns:
+            rename_map["ap"] = "access_point"
+        if "interval_begin_time" in df.columns:
+            rename_map["interval_begin_time"] = "interval_begin"
+
+        if rename_map:
+            df = df.rename(columns=rename_map)
+
+        for required_col in ["access_point", "interval_begin", "count"]:
+            if required_col not in df.columns:
+                raise ValueError(
+                    f"Missing required column '{required_col}' in {f.name}. "
+                    f"Columns found: {list(df.columns)[:10]}..."
+                )
+
+        keep_cols = ["access_point", "interval_begin", "count"]
+        out = df[keep_cols].copy()
+        out["source_file"] = f.name
+
+        if parse_dates:
+            out["interval_begin"] = pd.to_datetime(out["interval_begin"], errors="coerce")
+
+        # Normalize type
+        out["count"] = pd.to_numeric(out["count"], errors="coerce")
+
+        frames.append(out)
+
+    occ = pd.concat(frames, ignore_index=True)
+
+    if parse_dates and "interval_begin" in occ.columns:
+        occ = occ.sort_values("interval_begin", kind="stable").reset_index(drop=True)
+
+    return occ
 
 
 def load_hvac(path: str, parse_dates: bool = True) -> pd.DataFrame:
