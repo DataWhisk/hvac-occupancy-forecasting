@@ -42,6 +42,46 @@ This document describes the schema and structure of all datasets used in the HVA
 **Time Range:** 3-4 months synchronized with occupancy  
 **Frequency:** ~15 minutes
 
+### 2024 Bren Hall Weekly Export Overview
+
+Use this section as the onboarding reference for the imported folder:
+`data/raw/hvac/brenhall_2024_weekly/` (source bundle label: `2024 HVAC Data (Bren Hall)`).
+
+#### Scope
+
+- Building: Bren Hall (2024 weekly BMS exports)
+- Files currently imported: 14 CSV files
+- Coverage in repository: `2024-04-28` through `2024-08-03` (inclusive)
+- Shape per file: 672 rows x 5,956 columns
+- Combined shape across imported weeks: 9,408 rows x 5,956 columns (before cleaning/normalization)
+- Known raw-data issues:
+  - Mixed units embedded in values (examples: `ppm`, `cfm`, `%`)
+  - Duplicate column names (379 duplicate headers in each weekly export)
+  - Very wide schema, which makes manual inspection and ad hoc notebook work error-prone
+
+#### Cadence
+
+- Sampling interval: 15 minutes
+- File cadence: 1 file per week
+- Expected rows per full week: 672 (`7 days * 24 hours * 4 samples/hour`)
+- Timestamp format example: `2024-04-28T00:00:00-07:00 Los_Angeles`
+- Timezone appears embedded in each timestamp string (`-07:00 Los_Angeles`) and should be normalized during ingestion
+
+#### File Naming
+
+- Current observed pattern: `BrenHall2024Week_<Mon><Day>.csv`
+- Examples:
+  - `BrenHall2024Week_Apr28.csv`
+  - `BrenHall2024Week_May5.csv`
+  - `BrenHall2024Week_Jul28.csv`
+- Interpretation: `<Mon><Day>` corresponds to week start date (Sunday 00:00 local time in the current exports)
+
+#### Contributor Onboarding Notes
+
+- Do not assume column names are unique in raw exports; enforce deterministic renaming before transforms.
+- Do not parse measurement columns as numeric until units are stripped and standardized.
+- Preserve the raw files as immutable source artifacts; write cleaned outputs to `data/interim/` or `data/processed/`.
+
 ### Schema
 
 | Column | Type | Description | Example |
