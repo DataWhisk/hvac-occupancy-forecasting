@@ -82,6 +82,47 @@ def load_weather(path: str, parse_dates: bool = True) -> pd.DataFrame:
     # TODO: Implement actual loading logic once data format is known
     raise NotImplementedError("Implement once raw data format is confirmed")
 
+import pandas as pd
+import requests
+
+def fetch_historical_weather(lat=33.6695, lon=-117.8231, start_date='2017-08-28', end_date='2018-01-05'):
+    """
+    Fetches historical hourly temperature data from Open-Meteo.
+    Defaults are set to Irvine, CA for the dates in the occupancy dataset.
+    """
+    url = "https://archive-api.open-meteo.com/v1/archive"
+    
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "start_date": start_date,
+        "end_date": end_date,
+        "hourly": "temperature_2m",
+        "temperature_unit": "fahrenheit",
+        "timezone": "America/Los_Angeles"
+    }
+    
+    print("Fetching weather data...")
+    response = requests.get(url, params=params)
+    response.raise_for_status() # Check for any errors
+    
+    data = response.json()
+    
+    # Extract the time and temperature arrays
+    times = data['hourly']['time']
+    temps = data['hourly']['temperature_2m']
+    
+    # Create a DataFrame
+    weather_df = pd.DataFrame({
+        'timestamp': pd.to_datetime(times),
+        'outside_temp': temps
+    })
+    
+    # Set the index to match our pipeline structure
+    weather_df = weather_df.set_index('timestamp')
+    
+    return weather_df
+
 
 def load_tou(path: str, parse_dates: bool = True) -> pd.DataFrame:
     """
@@ -126,3 +167,5 @@ def load_space_metadata(path: str) -> pd.DataFrame:
     """
     # TODO: Implement actual loading logic once data format is known
     raise NotImplementedError("Implement once raw data format is confirmed")
+
+

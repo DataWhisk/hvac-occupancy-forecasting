@@ -2,14 +2,11 @@
 
 from .prophet_baseline import ProphetOccupancyModel
 from .transformer_baseline import TransformerOccupancyModel
-from .xgBoost import prepare_data, create_features, train_and_evaluate, plot_actual_vs_predicted
+from .xgBoost import occupancy_predictor
 
 
 __all__ = [
     "ProphetOccupancyModel",
     "TransformerOccupancyModel",
-    "prepare_data",
-    "create_features",
-    "train_and_evaluate",
-    "plot_actual_vs_predicted",
+    "occupancy_predictor",
 ]
