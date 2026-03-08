@@ -24,10 +24,11 @@ ipykernel>=6.0.0
 python-dateutil>=2.8.0
 pytz>=2023.3
 tqdm>=4.65.0
+psycopg2-binary>=2.9.9
 
 # Data validation (optional)
 # pandera>=0.16.0
 
-# Dashboard (optional, for future use)
-# streamlit>=1.25.0
+# Dashboard
+streamlit>=1.25.0
 # dash>=2.11.0

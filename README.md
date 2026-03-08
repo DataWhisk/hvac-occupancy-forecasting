@@ -50,7 +50,10 @@ hvac-occupancy-forecasting/
 │   │   └── optimizer.py        # Setpoint optimization, savings estimation
 │   └── viz/                    # Visualization utilities
 │       ├── __init__.py
-│       └── dashboards.py       # Plotting and dashboard functions
+│       ├── dashboards.py            # Plotting helpers
+│       ├── dashboard_data.py        # PostgreSQL query layer for dashboard
+│       ├── dashboard_insights.py    # Insight/narrative derivation
+│       └── streamlit_dashboard.py   # Streamlit dashboard entrypoint
 │
 └── docs/
     ├── system_design.md        # High-level architecture and data flow
@@ -76,19 +79,39 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. Data Access
+### 3. Data Access (PostgreSQL Only)
 
-**Raw data is not stored in Git.** To work with the project:
+The app is configured for **PostgreSQL-only** loading (CSV loaders are disabled).
 
-1. Obtain access to the shared dataset bundle (from Kevin/Nada/Ashwin)
-2. Place files in the corresponding `data/raw/...` subfolders:
-   - `data/raw/occupancy/` - Occupancy CSV files
-   - `data/raw/hvac/` - HVAC data exports
-   - `data/raw/weather/` - Weather data
-   - `data/raw/tou/` - TOU pricing schedules
-   - `data/raw/space_metadata/` - Room/zone metadata
+1. Create `.env` from `.env.example` and fill credentials:
 
-See [`docs/data_dictionary.md`](docs/data_dictionary.md) for filenames, schemas, and time ranges.
+```bash
+cp .env.example .env
+```
+
+2. Install dependencies (includes `psycopg2-binary`):
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Optional connectivity check:
+
+```bash
+PGPASSWORD='...' psql -h <host> -U <user> -d <db_name>
+```
+
+4. Build DB schema dictionary:
+
+```bash
+python3 scripts/build_db_data_dictionary.py
+```
+
+5. Train/evaluate occupancy model from DB:
+
+```bash
+python3 scripts/train_eval_occupancy_model.py --db-table space_occupancy
+```
 
 ### 4. Run Notebooks
 
@@ -96,6 +119,23 @@ Start with the exploration notebook:
 
 ```bash
 jupyter notebook notebooks/01_exploration_opportunity_savings.ipynb
+```
+
+### 5. Run the Streamlit POC Dashboard (Local)
+
+The dashboard reads directly from PostgreSQL and presents separate occupancy and HVAC insights.
+
+Required environment variables (in `.env` or shell):
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+
+Run from the repository root:
+
+```bash
+streamlit run src/viz/streamlit_dashboard.py
 ```
 
 ---
